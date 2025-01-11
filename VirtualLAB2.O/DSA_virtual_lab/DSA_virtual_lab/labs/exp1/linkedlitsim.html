@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linked List Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            margin: 0 10px;
+            padding: 5px;
+        }
+
+        button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        #linkedList {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .node {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 5px;
+            padding: 10px;
+            width: 100px;
+            min-height: 50px;
+            text-align: center;
+            position: relative;
+        }
+
+        .node span {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .node:after {
+            content: '→';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: #333;
+        }
+
+        .node.doubly:after {
+            content: '↔';
+        }
+
+        .node.circular:after {
+            content: '↻';
+        }
+
+        .node.last:after {
+            content: '';
+        }
+
+        .link {
+            position: absolute;
+            width: 50px;
+            height: 30px;
+            border-top: 2px solid #333;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Linked List Simulator</h1>
+        <div class="input-group">
+            <label for="listType">List Type:</label>
+            <select id="listType">
+                <option value="singly">Singly Linked List</option>
+                <option value="doubly">Doubly Linked List</option>
+                <option value="circular">Circular Linked List</option>
+            </select>
+            <label for="value">Value:</label>
+            <input type="text" id="value" />
+            <label for="index">Index:</label>
+            <input type="number" id="index" min="0" />
+            <button onclick="addNode()">Add Node</button>
+            <button onclick="removeNode()">Remove Node</button>
+        </div>
+        <h2>Linked List:</h2>
+        <div id="linkedList"></div>
+    </div>
+    <script>
+        class Node {
+            constructor(value) {
+                this.value = value;
+                this.next = null;
+                this.prev = null;
+            }
+        }
+
+        let head = null;
+        let tail = null;
+
+        function addNode() {
+            const value = document.getElementById('value').value;
+            const index = parseInt(document.getElementById('index').value);
+            const listType = document.getElementById('listType').value;
+
+            if (!value) {
+                alert('Please enter a value.');
+                return;
+            }
+
+            const newNode = new Node(value);
+
+            if (listType === 'singly') {
+                if (index === 0) {
+                    newNode.next = head;
+                    head = newNode;
+                    if (tail === null) tail = newNode;
+                } else {
+                    let current = head;
+                    let prev = null;
+                    let i = 0;
+                    while (current !== null && i < index) {
+                        prev = current;
+                        current = current.next;
+                        i++;
+                    }
+                    if (prev === null) {
+                        head = newNode;
+                        newNode.next = current;
+                        if (tail === null) tail = newNode;
+                    } else {
+                        prev.next = newNode;
+                        newNode.next = current;
+                        if (current === null) tail = newNode;
+                    }
+                }
+            } else if (listType === 'doubly') {
+                if (index === 0) {
+                    newNode.next = head;
+                    if (head !== null) head.prev = newNode;
+                    head = newNode;
+                    if (tail === null) tail = newNode;
+                } else {
+                    let current = head;
+                    let prev = null;
+                    let i = 0;
+                    while (current !== null && i < index) {
+                        prev = current;
+                        current = current.next;
+                        i++;
+                    }
+                    if (prev === null) {
+                        head = newNode;
+                        newNode.next = current;
+                        if (current !== null) current.prev = newNode;
+                        if (tail === null) tail = newNode;
+                    } else {
+                        prev.next = newNode;
+                        newNode.prev = prev;
+                        newNode.next = current;
+                        if (current !== null) current.prev = newNode;
+                        if (current === null) tail = newNode;
+                    }
+                }
+            } else if (listType === 'circular') {
+                if (index === 0) {
+                    newNode.next = head;
+                    head = newNode;
+                    if (tail === null) {
+                        tail = newNode;
+                        tail.next = head;
+                    } else {
+                        tail.next = head;
+                    }
+                } else {
+                    let current = head;
+                    let prev = null;
+                    let i = 0;
+                    while (current !== null && i < index) {
+                        prev = current;
+                        current = current.next;
+                        i++;
+                    }
+                    if (prev === null) {
+                        head = newNode;
+                        newNode.next = current;
+                        tail.next = head;
+                    } else {
+                        prev.next = newNode;
+                        newNode.next = current;
+                        if (current === null) {
+                            tail = newNode;
+                            tail.next = head;
+                        }
+                    }
+                }
+            }
+
+            document.getElementById('value').value = '';
+            document.getElementById('index').value = '';
+            displayLinkedList();
+        }
+
+        function removeNode() {
+            const index = parseInt(document.getElementById('index').value);
+            const listType = document.getElementById('listType').value;
+
+            if (index < 0) {
+                alert('Index cannot be negative.');
+                return;
+            }
+
+            if (head === null) {
+                alert('The list is empty.');
+                return;
+            }
+
+            if (listType === 'singly') {
+                if (index === 0) {
+                    head = head.next;
+                    if (head === null) tail = null;
+                } else {
+                    let current = head;
+                    let prev = null;
+                    let i = 0;
+                    while (current !== null && i < index) {
+                        prev = current;
+                        current = current.next;
+                        i++;
+                    }
+                    if (current !== null) {
+                        prev.next = current.next;
+                        if (current.next === null) tail = prev;
+                    }
+                }
+            } else if (listType === 'doubly') {
+                if (index === 0) {
+                    head = head.next;
+                    if (head !== null) head.prev = null;
+                    if (head === null) tail = null;
+                } else {
+                    let current = head;
+                    let i = 0;
+                    while (current !== null && i < index) {
+                        current = current.next;
+                        i++;
+                    }
+                    if (current !== null) {
+                        if (current.prev !== null) current.prev.next = current.next;
+                        if (current.next !== null) current.next.prev = current.prev;
+                        if (current === tail) tail = current.prev;
+                    }
+                }
+            } else if (listType === 'circular') {
+                if (index === 0) {
+                    if (head === tail) {
+                        head = null;
+                        tail = null;
+                    } else {
+                        head = head.next;
+                        tail.next = head;
+                    }
+                } else {
+                    let current = head;
+                    let prev = null;
+                    let i = 0;
+                    while (current !== null && i < index) {
+                        prev = current;
+                        current = current.next;
+                        i++;
+                    }
+                    if (current !== null) {
+                        if (prev !== null) {
+                            prev.next = current.next;
+                            if (current === tail) tail = prev;
+                        }
+                        if (current === head) head = current.next;
+                        tail.next = head;
+                    }
+                }
+            }
+
+            document.getElementById('index').value = '';
+            displayLinkedList();
+        }
+
+        function displayLinkedList() {
+            const linkedListDiv = document.getElementById('linkedList');
+            linkedListDiv.innerHTML = '';
+
+            if (head === null) return;
+
+            let current = head;
+            let index = 0;
+
+            do {
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = 'node ' + document.getElementById('listType').value;
+                nodeDiv.innerHTML = `<span>${current.value}</span>`;
+                linkedListDiv.appendChild(nodeDiv);
+
+                // Draw links for singly and doubly lists
+                if (index > 0 && document.getElementById('listType').value !== 'circular') {
+                    const linkDiv = document.createElement('div');
+                    linkDiv.className = 'link';
+                    linkDiv.style.top = `${nodeDiv.offsetTop + 20}px`;
+                    linkDiv.style.left = `${nodeDiv.offsetLeft - 40}px`;
+                    linkedListDiv.appendChild(linkDiv);
+                }
+
+                index++;
+                current = current.next;
+            } while (current !== head && current !== null);
+
+            // Adjust last node for circular linked list
+            if (document.getElementById('listType').value === 'circular') {
+                const firstNodeDiv = linkedListDiv.firstChild;
+                const lastNodeDiv = linkedListDiv.lastChild;
+
+                const linkDiv = document.createElement('div');
+                linkDiv.className = 'link';
+                linkDiv.style.top = `${lastNodeDiv.offsetTop + 20}px`;
+                linkDiv.style.left = `${lastNodeDiv.offsetLeft + 60}px`;
+                linkedListDiv.appendChild(linkDiv);
+
+                linkedListDiv.style.width = `${firstNodeDiv.offsetWidth * 3}px`;
+            }
+        }
+    </script>
+</body>
+</html>

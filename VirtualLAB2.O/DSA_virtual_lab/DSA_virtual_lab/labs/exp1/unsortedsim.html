@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unsorted Array Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        input[type="number"], input[type="text"] {
+            width: 200px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #009dff;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #009dff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1261A0;
+        }
+
+        p {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .array-display {
+            margin: 20px 0;
+            font-size: 18px;
+            padding: 10px;
+            border: 1px solid #333;
+            background-color: #f8f8f8;
+            display: inline-block;
+        }
+        
+        .highlight {
+            background-color: yellow;
+        }
+
+        p#error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Unsorted Array Simulator</h1>
+        
+        <input type="number" id="elementInput" placeholder="Enter element">
+        <br>
+        <button onclick="addElement()">Add Element</button>
+        <button onclick="deleteElement()">Delete Element</button>
+        <button onclick="searchElement()">Search Element</button>
+        
+        <p class="array-display" id="arrayDisplay">Array: []</p>
+        <p id="error"></p>
+    </div>
+
+    <script>
+        let array = [];
+
+        // Function to update the displayed array
+        function updateArrayDisplay() {
+            const arrayDisplay = document.getElementById('arrayDisplay');
+            arrayDisplay.innerHTML = 'Array: [' + array.join(', ') + ']';
+        }
+
+        // Function to add an element to the array
+        function addElement() {
+            const input = document.getElementById('elementInput').value;
+            const error = document.getElementById('error');
+
+            if (input === "") {
+                error.textContent = 'Please enter a valid number.';
+                return;
+            }
+            error.textContent = '';
+            
+            const element = parseInt(input);
+            array.push(element);
+            updateArrayDisplay();
+        }
+
+        // Function to delete an element from the array
+        function deleteElement() {
+            const input = document.getElementById('elementInput').value;
+            const error = document.getElementById('error');
+
+            if (input === "") {
+                error.textContent = 'Please enter a valid number.';
+                return;
+            }
+            error.textContent = '';
+            
+            const element = parseInt(input);
+            const index = array.indexOf(element);
+
+            if (index > -1) {
+                array.splice(index, 1); // Remove the element from the array
+                updateArrayDisplay();
+            } else {
+                error.textContent = 'Element not found in array.';
+            }
+        }
+
+        // Function to search for an element in the array
+        function searchElement() {
+            const input = document.getElementById('elementInput').value;
+            const error = document.getElementById('error');
+            const arrayDisplay = document.getElementById('arrayDisplay');
+
+            if (input === "") {
+                error.textContent = 'Please enter a valid number.';
+                return;
+            }
+            error.textContent = '';
+
+            const element = parseInt(input);
+            const index = array.indexOf(element);
+
+            if (index > -1) {
+                error.textContent = `Element ${element} found at index ${index}.`;
+                highlightElement(index);
+            } else {
+                error.textContent = 'Element not found in array.';
+            }
+        }
+
+        // Function to highlight the found element
+        function highlightElement(index) {
+            const arrayDisplay = document.getElementById('arrayDisplay');
+            const arr = array.map((item, i) => i === index ? `<span class="highlight">${item}</span>` : item);
+            arrayDisplay.innerHTML = 'Array: [' + arr.join(', ') + ']';
+        }
+    </script>
+
+</body>
+</html>

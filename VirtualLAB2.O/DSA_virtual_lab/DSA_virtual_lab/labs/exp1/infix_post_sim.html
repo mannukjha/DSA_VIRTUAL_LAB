@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infix to Postfix Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #009dff;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #009dff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1261A0;
+        }
+
+        p#output {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        p#error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Infix to Postfix Simulator</h1>
+        <input type="text" id="infixInput" placeholder="Enter Infix Expression">
+        <br>
+        <button onclick="convertInfixToPostfix()">Convert to Postfix</button>
+        <p id="output"></p>
+        <p id="error"></p>
+    </div>
+
+    <script>
+        // Function to return precedence of operators
+        function precedence(operator) {
+            switch (operator) {
+                case '+':
+                case '-':
+                    return 1;
+                case '*':
+                case '/':
+                    return 2;
+                case '^':
+                    return 3;
+                default:
+                    return -1;
+            }
+        }
+
+        // Function to convert infix to postfix
+        function infixToPostfix(infix) {
+            let stack = [];
+            let postfix = '';
+            for (let i = 0; i < infix.length; i++) {
+                let char = infix[i];
+
+                // If the character is an operand, add it to postfix expression
+                if (/[a-zA-Z0-9]/.test(char)) {
+                    postfix += char;
+                }
+                // If the character is '(', push it to the stack
+                else if (char === '(') {
+                    stack.push(char);
+                }
+                // If the character is ')', pop and output from the stack until '(' is encountered
+                else if (char === ')') {
+                    while (stack.length > 0 && stack[stack.length - 1] !== '(') {
+                        postfix += stack.pop();
+                    }
+                    stack.pop();
+                }
+                // If the character is an operator
+                else {
+                    while (stack.length > 0 && precedence(char) <= precedence(stack[stack.length - 1])) {
+                        postfix += stack.pop();
+                    }
+                    stack.push(char);
+                }
+            }
+
+            // Pop all the operators from the stack
+            while (stack.length > 0) {
+                postfix += stack.pop();
+            }
+
+            return postfix;
+        }
+
+        // Function to validate and convert the expression
+        function convertInfixToPostfix() {
+            const infixInput = document.getElementById('infixInput').value;
+            const output = document.getElementById('output');
+            const error = document.getElementById('error');
+
+            // Check if input is valid
+            if (!/^[a-zA-Z0-9+\-*/^()]*$/.test(infixInput)) {
+                error.textContent = 'Invalid input. Only alphanumeric characters and operators are allowed.';
+                output.textContent = '';
+                return;
+            }
+
+            // Reset the error message
+            error.textContent = '';
+
+            // Convert the infix to postfix
+            const postfix = infixToPostfix(infixInput);
+
+            // Display the postfix expression
+            output.textContent = 'Postfix Expression: ' + postfix;
+        }
+    </script>
+
+</body>
+</html>

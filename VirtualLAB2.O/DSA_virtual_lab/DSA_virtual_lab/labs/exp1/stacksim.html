@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        /* Add the stack simulation title */
+        h2 {
+            color: #009dff;
+            margin-top: 10px;
+        }
+
+        .stack-container {
+            margin: 20px 0;
+            height: 400px; /* Increased the height */
+            width: 300px; /* Increased the width */
+            border: 2px solid #333;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+        }
+
+        .stack {
+            width: 100%;
+            height: 400px; /* Increased the height */
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .stack-element {
+            background-color: #1261A0;
+            color: white;
+            border: 1px solid #009dff;
+            width: 90%; /* Adjusted width for larger stack */
+            text-align: center;
+            padding: 15px; /* Increased padding */
+            margin: 5px 0;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #009dff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1261A0;
+        }
+
+        p#message {
+            margin-top: 10px;
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stack Simulator</h1>
+        <h2>Stack Simulation</h2> <!-- Added stack simulation heading -->
+        <div class="stack-container">
+            <div class="stack" id="stack"></div>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="inputValue" placeholder="Enter Value">
+            <button id="pushBtn">Push</button>
+            <button id="popBtn">Pop</button>
+            <p id="message"></p>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Stack Implementation
+
+        // Set maximum capacity for the stack
+        const MAX_CAPACITY = 6;
+
+        // Stack class
+        class Stack {
+            constructor() {
+                this.items = [];
+            }
+
+            // Push element to the stack
+            push(element) {
+                if (this.items.length >= MAX_CAPACITY) {
+                    this.showMessage("Stack is full!");
+                    return;
+                }
+                this.items.push(element);
+                this.render();
+            }
+
+            // Pop element from the stack
+            pop() {
+                if (this.items.length === 0) {
+                    this.showMessage("Stack is empty!");
+                    return null;
+                }
+                let poppedElement = this.items.pop();
+                this.render();
+                return poppedElement;
+            }
+
+            // Render the stack visually
+            render() {
+                const stackDiv = document.getElementById("stack");
+                stackDiv.innerHTML = '';  // Clear previous elements
+                for (let i = 0; i < this.items.length; i++) {
+                    let stackElement = document.createElement("div");
+                    stackElement.className = "stack-element";
+                    stackElement.textContent = this.items[i];
+                    stackDiv.appendChild(stackElement);
+                }
+            }
+
+            // Display message
+            showMessage(message) {
+                const messageParagraph = document.getElementById("message");
+                messageParagraph.textContent = message;
+                setTimeout(() => {
+                    messageParagraph.textContent = '';
+                }, 2000);
+            }
+        }
+
+        // Initialize stack
+        const stack = new Stack();
+
+        // Event listeners for buttons
+        document.getElementById("pushBtn").addEventListener("click", () => {
+            const inputValue = document.getElementById("inputValue").value;
+            if (inputValue === '') {
+                stack.showMessage("Please enter a value!");
+            } else {
+                stack.push(inputValue);
+                document.getElementById("inputValue").value = '';
+            }
+        });
+
+        document.getElementById("popBtn").addEventListener("click", () => {
+            stack.pop();
+        });
+    </script>
+</body>
+</html>

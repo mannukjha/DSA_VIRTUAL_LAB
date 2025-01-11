@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hashtable Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input {
+            margin: 0 10px;
+            padding: 5px;
+        }
+
+        button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        #hashTable {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .bucket {
+            border: 1px solid #ddd;
+            margin: 5px;
+            padding: 10px;
+            width: 150px;
+            min-height: 50px;
+            text-align: left;
+        }
+
+        .bucket span {
+            display: block;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hashtable Simulator</h1>
+        <div class="input-group">
+            <label for="key">Key:</label>
+            <input type="text" id="key" />
+            <label for="value">Value:</label>
+            <input type="text" id="value" />
+            <button onclick="insert()">Insert</button>
+            <button onclick="remove()">Remove</button>
+        </div>
+        <h2>Hashtable:</h2>
+        <div id="hashTable"></div>
+    </div>
+    <script>
+        // Hashtable Simulator
+        const tableSize = 10;
+        let hashtable = new Array(tableSize);
+
+        function hashFunction(key) {
+            return key % tableSize;
+        }
+
+        function insert() {
+            const key = parseInt(document.getElementById('key').value);
+            const value = document.getElementById('value').value;
+
+            if (isNaN(key) || !value) {
+                alert('Please enter a valid key and value.');
+                return;
+            }
+
+            const index = hashFunction(key);
+
+            if (!hashtable[index]) {
+                hashtable[index] = [];
+            }
+
+            hashtable[index].push({ key, value });
+            displayHashtable();
+        }
+
+        function remove() {
+            const key = parseInt(document.getElementById('key').value);
+
+            if (isNaN(key)) {
+                alert('Please enter a valid key.');
+                return;
+            }
+
+            const index = hashFunction(key);
+            if (hashtable[index]) {
+                hashtable[index] = hashtable[index].filter(item => item.key !== key);
+                displayHashtable();
+            }
+        }
+
+        function displayHashtable() {
+            const hashTableDiv = document.getElementById('hashTable');
+            hashTableDiv.innerHTML = '';
+
+            hashtable.forEach((bucket, index) => {
+                const bucketDiv = document.createElement('div');
+                bucketDiv.className = 'bucket';
+                bucketDiv.innerHTML = `<strong>Index ${index}:</strong>`;
+
+                if (bucket) {
+                    bucket.forEach(item => {
+                        bucketDiv.innerHTML += `<span>Key: ${item.key}, Value: ${item.value}</span>`;
+                    });
+                } else {
+                    bucketDiv.innerHTML += '<span>Empty</span>';
+                }
+
+                hashTableDiv.appendChild(bucketDiv);
+            });
+        }
+    </script>
+</body>
+</html>

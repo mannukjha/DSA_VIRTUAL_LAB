@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        h2 {
+            color: #009dff;
+            margin-top: 10px;
+        }
+
+        .queue-container {
+            margin: 20px 0;
+            height: 120px;
+            width: 500px;
+            border: 2px solid #333;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            position: relative;
+        }
+
+        .queue {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .queue-element {
+            background-color: #1261A0;
+            color: white;
+            border: 1px solid #009dff;
+            width: 80px;
+            text-align: center;
+            padding: 15px;
+            margin: 5px;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #009dff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1261A0;
+        }
+
+        p#message {
+            margin-top: 10px;
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Queue Simulator</h1>
+        <h2>Queue Simulation</h2>
+        <div class="queue-container">
+            <div class="queue" id="queue"></div>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="inputValue" placeholder="Enter Value">
+            <button id="enqueueBtn">Enqueue</button>
+            <button id="dequeueBtn">Dequeue</button>
+            <p id="message"></p>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Queue Implementation
+
+        // Set maximum capacity for the queue
+        const MAX_CAPACITY = 6;
+
+        // Queue class
+        class Queue {
+            constructor() {
+                this.items = [];
+            }
+
+            // Enqueue element to the queue
+            enqueue(element) {
+                if (this.items.length >= MAX_CAPACITY) {
+                    this.showMessage("Queue is full!");
+                    return;
+                }
+                this.items.push(element);
+                this.render();
+            }
+
+            // Dequeue element from the queue
+            dequeue() {
+                if (this.items.length === 0) {
+                    this.showMessage("Queue is empty!");
+                    return null;
+                }
+                let dequeuedElement = this.items.shift();
+                this.render();
+                return dequeuedElement;
+            }
+
+            // Render the queue visually
+            render() {
+                const queueDiv = document.getElementById("queue");
+                queueDiv.innerHTML = '';  // Clear previous elements
+                for (let i = 0; i < this.items.length; i++) {
+                    let queueElement = document.createElement("div");
+                    queueElement.className = "queue-element";
+                    queueElement.textContent = this.items[i];
+                    queueDiv.appendChild(queueElement);
+                }
+            }
+
+            // Display message
+            showMessage(message) {
+                const messageParagraph = document.getElementById("message");
+                messageParagraph.textContent = message;
+                setTimeout(() => {
+                    messageParagraph.textContent = '';
+                }, 2000);
+            }
+        }
+
+        // Initialize queue
+        const queue = new Queue();
+
+        // Event listeners for buttons
+        document.getElementById("enqueueBtn").addEventListener("click", () => {
+            const inputValue = document.getElementById("inputValue").value;
+            if (inputValue === '') {
+                queue.showMessage("Please enter a value!");
+            } else {
+                queue.enqueue(inputValue);
+                document.getElementById("inputValue").value = '';
+            }
+        });
+
+        document.getElementById("dequeueBtn").addEventListener("click", () => {
+            queue.dequeue();
+        });
+    </script>
+</body>
+</html>

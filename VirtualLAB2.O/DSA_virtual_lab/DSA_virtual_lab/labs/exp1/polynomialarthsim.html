@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polynomial Arithmetic Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input, button {
+            margin: 0 10px;
+            padding: 5px;
+        }
+
+        button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        .polynomial {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Polynomial Arithmetic Simulator</h1>
+        <div class="input-group">
+            <label for="poly1">Polynomial 1:</label>
+            <input type="text" id="poly1" placeholder="e.g. 3x^2 + 2x + 1" />
+        </div>
+        <div class="input-group">
+            <label for="poly2">Polynomial 2:</label>
+            <input type="text" id="poly2" placeholder="e.g. 4x^2 + 3x + 2" />
+        </div>
+        <div class="input-group">
+            <button onclick="performArithmetic('add')">Add Polynomials</button>
+            <button onclick="performArithmetic('subtract')">Subtract Polynomials</button>
+            <button onclick="performArithmetic('multiply')">Multiply Polynomials</button>
+        </div>
+        <div id="result">
+            <h2>Results:</h2>
+            <div id="poly1Result" class="polynomial"></div>
+            <div id="poly2Result" class="polynomial"></div>
+            <div id="resultPolynomial" class="polynomial"></div>
+        </div>
+    </div>
+    <script>
+        class Node {
+            constructor(coefficient, exponent) {
+                this.coefficient = coefficient;
+                this.exponent = exponent;
+                this.next = null;
+            }
+        }
+
+        function parsePolynomial(polyStr) {
+            const regex = /([+-]?\d*)x(?:\^(\d+))?|([+-]?\d+)/g;
+            let match;
+            let poly = null;
+            let tail = null;
+
+            while ((match = regex.exec(polyStr)) !== null) {
+                if (match[0] === '') continue;
+
+                const coefficientStr = match[1] || match[3] || '1';
+                const exponentStr = match[2] || '0';
+                const coefficient = coefficientStr === '+' ? 1 : coefficientStr === '-' ? -1 : parseInt(coefficientStr, 10);
+                const exponent = match[2] ? parseInt(exponentStr, 10) : (match[0].includes('x') ? 1 : 0);
+
+                if (coefficient !== 0) {
+                    const newNode = new Node(coefficient, exponent);
+                    if (!poly) {
+                        poly = newNode;
+                        tail = poly;
+                    } else {
+                        tail.next = newNode;
+                        tail = tail.next;
+                    }
+                }
+            }
+
+            return poly;
+        }
+
+        function formatPolynomial(poly) {
+            if (!poly) return '0';
+
+            let result = '';
+            let current = poly;
+            while (current) {
+                const coef = current.coefficient;
+                const exp = current.exponent;
+
+                if (coef === 0) {
+                    current = current.next;
+                    continue;
+                }
+
+                if (result !== '') {
+                    result += coef > 0 ? ' + ' : ' - ';
+                } else if (coef < 0) {
+                    result += '-';
+                }
+
+                if (Math.abs(coef) !== 1 || exp === 0) {
+                    result += Math.abs(coef);
+                }
+                if (exp > 0) {
+                    result += 'x';
+                    if (exp > 1) {
+                        result += '^' + exp;
+                    }
+                }
+
+                current = current.next;
+            }
+
+            return result || '0';
+        }
+
+        function addPolynomials(poly1, poly2) {
+            let dummy = new Node(0, -1);
+            let p = dummy;
+            let map = new Map();
+
+            function addToMap(poly) {
+                while (poly) {
+                    if (!map.has(poly.exponent)) {
+                        map.set(poly.exponent, 0);
+                    }
+                    map.set(poly.exponent, map.get(poly.exponent) + poly.coefficient);
+                    poly = poly.next;
+                }
+            }
+
+            addToMap(poly1);
+            addToMap(poly2);
+
+            for (let [exp, coef] of Array.from(map).sort((a, b) => b[0] - a[0])) {
+                if (coef !== 0) {
+                    p.next = new Node(coef, exp);
+                    p = p.next;
+                }
+            }
+
+            return dummy.next;
+        }
+
+        function subtractPolynomials(poly1, poly2) {
+            let dummy = new Node(0, -1);
+            let p = dummy;
+            let map = new Map();
+
+            function addToMap(poly) {
+                while (poly) {
+                    if (!map.has(poly.exponent)) {
+                        map.set(poly.exponent, 0);
+                    }
+                    map.set(poly.exponent, map.get(poly.exponent) + poly.coefficient);
+                    poly = poly.next;
+                }
+            }
+
+            addToMap(poly1);
+
+            while (poly2) {
+                if (!map.has(poly2.exponent)) {
+                    map.set(poly2.exponent, 0);
+                }
+                map.set(poly2.exponent, map.get(poly2.exponent) - poly2.coefficient);
+                poly2 = poly2.next;
+            }
+
+            for (let [exp, coef] of Array.from(map).sort((a, b) => b[0] - a[0])) {
+                if (coef !== 0) {
+                    p.next = new Node(coef, exp);
+                    p = p.next;
+                }
+            }
+
+            return dummy.next;
+        }
+
+        function multiplyPolynomials(poly1, poly2) {
+            let result = null;
+
+            let p1 = poly1;
+            while (p1) {
+                let p2 = poly2;
+                let temp = null;
+                let tempTail = null;
+
+                while (p2) {
+                    const coef = p1.coefficient * p2.coefficient;
+                    const exp = p1.exponent + p2.exponent;
+
+                    const newNode = new Node(coef, exp);
+                    if (!temp) {
+                        temp = newNode;
+                        tempTail = temp;
+                    } else {
+                        tempTail.next = newNode;
+                        tempTail = tempTail.next;
+                    }
+                    p2 = p2.next;
+                }
+
+                result = addPolynomials(result, temp);
+                p1 = p1.next;
+            }
+
+            return result;
+        }
+
+        function performArithmetic(operation) {
+            const polyStr1 = document.getElementById('poly1').value;
+            const polyStr2 = document.getElementById('poly2').value;
+
+            const poly1 = parsePolynomial(polyStr1);
+            const poly2 = parsePolynomial(polyStr2);
+
+            let resultPoly;
+            if (operation === 'add') {
+                resultPoly = addPolynomials(poly1, poly2);
+            } else if (operation === 'subtract') {
+                resultPoly = subtractPolynomials(poly1, poly2);
+            } else if (operation === 'multiply') {
+                resultPoly = multiplyPolynomials(poly1, poly2);
+            }
+
+            document.getElementById('poly1Result').textContent = 'Polynomial 1: ' + formatPolynomial(poly1);
+            document.getElementById('poly2Result').textContent = 'Polynomial 2: ' + formatPolynomial(poly2);
+            document.getElementById('resultPolynomial').textContent = 'Result: ' + formatPolynomial(resultPoly);
+        }
+    </script>
+</body>
+</html>
