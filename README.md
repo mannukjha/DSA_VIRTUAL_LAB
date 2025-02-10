@@ -1,7 +1,3 @@
-Sure! Here is a draft for your README.md file:
-
----
-
 # DSA Virtual Lab
 
 Welcome to the DSA Virtual Lab repository. This project aims to provide an interactive virtual lab for learning Data Structures and Algorithms (DSA) through visual and hands-on experiences.
